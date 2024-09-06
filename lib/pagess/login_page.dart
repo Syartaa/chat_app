@@ -1,6 +1,9 @@
+import 'package:chat_app/services/auth_service.dart';
+import 'package:chat_app/utils/consts.dart';
 import 'package:chat_app/widgets/costom_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:get_it/get_it.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -10,6 +13,19 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final GetIt _getIt = GetIt.instance;
+  final GlobalKey<FormState> _loginFormKey = GlobalKey();
+
+  late AuthService _authService;
+
+  String? email, password;
+
+  @override
+  void initState() {
+    super.initState();
+    _authService = _getIt.get<AuthService>();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,17 +87,33 @@ class _LoginPageState extends State<LoginPage> {
         vertical: MediaQuery.sizeOf(context).height * 0.05,
       ),
       child: Form(
+        key: _loginFormKey,
         child: Column(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             CostomFormField(
-                height: MediaQuery.sizeOf(context).height * 0.1,
-                hintText: 'Email'),
+              height: MediaQuery.sizeOf(context).height * 0.1,
+              hintText: 'Email',
+              validationRegEx: EMAIL_VALIDATION_REGEX,
+              onSave: (value) {
+                setState(() {
+                  email = value;
+                });
+              },
+            ),
             CostomFormField(
-                height: MediaQuery.sizeOf(context).height * 0.1,
-                hintText: 'Password'),
+              height: MediaQuery.sizeOf(context).height * 0.1,
+              hintText: 'Password',
+              validationRegEx: PASSWORD_VALIDATION_REGEX,
+              obscureText: true,
+              onSave: (value) {
+                setState(() {
+                  password = value;
+                });
+              },
+            ),
             _loginButton(),
           ],
         ),
@@ -93,7 +125,14 @@ class _LoginPageState extends State<LoginPage> {
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
       child: MaterialButton(
-        onPressed: () {},
+        onPressed: () async {
+          if (_loginFormKey.currentState?.validate() ?? false) {
+            _loginFormKey.currentState?.save();
+            bool result = await _authService.login(email!, password!);
+            print(result);
+            if (result) {}
+          }
+        },
         color: Theme.of(context).colorScheme.primary,
         child: Text(
           'Login',

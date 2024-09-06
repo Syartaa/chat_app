@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.chatapp">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" >
     <application
         android:label="chat_app"
         android:name="${applicationName}"
